@@ -1,0 +1,1598 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>ŞAHİN TC — NEUROSTORY DEFENSE</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;touch-action:none;}
+
+
+#cv{position:fixed;top:0;left:0;width:100%;height:100%;z-index:1;}
+#hud{position:fixed;inset:0;z-index:10;pointer-events:none;font-family:'Share Tech Mono',monospace;}
+
+/* ── TOPBAR ── */
+.topbar{position:absolute;top:0;left:0;right:0;height:34px;background:linear-gradient(180deg,rgba(0,0,0,.85),rgba(0,0,0,.5));border-bottom:1px solid rgba(0,255,136,.2);display:flex;align-items:center;justify-content:space-between;padding:0 8px;}
+.t-logo{font-family:'Orbitron',monospace;font-size:9px;font-weight:900;color:#00ff88;letter-spacing:2px;}
+.t-stats{display:flex;gap:7px;font-size:9px;color:rgba(0,255,136,.6);}
+.t-val{color:#fff;font-size:10px;font-weight:bold;}
+.t-score{font-family:'Orbitron',monospace;font-size:10px;color:#ffcc00;letter-spacing:1px;}
+
+/* ── UYARILAR ── */
+.wzone{position:absolute;top:38px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:2px;pointer-events:none;}
+.wmsg{font-family:'Orbitron',monospace;font-size:9px;letter-spacing:2px;padding:2px 8px;border-radius:2px;display:none;}
+.wmsg.red{color:#ff3344;background:rgba(255,51,68,.12);border:1px solid rgba(255,51,68,.3);animation:fl .45s infinite;}
+.wmsg.grn{color:#00ff88;background:rgba(0,255,136,.12);border:1px solid rgba(0,255,136,.3);animation:fl .6s infinite;}
+.wmsg.yel{color:#ffcc00;background:rgba(255,204,0,.12);border:1px solid rgba(255,204,0,.3);animation:fl .8s infinite;}
+@keyframes fl{0%,100%{opacity:1}50%{opacity:.1}}
+
+/* ── GÖREVLER ── */
+.mzone{position:absolute;top:38px;left:6px;font-size:8px;line-height:1.6;letter-spacing:0px;color:rgba(0,255,136,.4);max-width:140px;}
+.m-done{color:rgba(0,255,136,.2);text-decoration:line-through;}
+.m-act{color:#00ff88;font-weight:bold;}
+
+/* ── SAĞ PANEL ── */
+.rpanel{position:absolute;top:38px;right:6px;width:112px;display:flex;flex-direction:column;gap:2px;}
+.rbox{background:rgba(0,0,0,.7);border:1px solid rgba(0,255,136,.18);border-radius:2px;padding:3px 6px;}
+.rlbl{font-size:6px;letter-spacing:1px;color:rgba(0,255,136,.4);margin-bottom:1px;}
+.rval{font-size:10px;color:#00ff88;}
+.wrow{display:flex;justify-content:space-between;font-size:8px;padding:0;border-bottom:1px solid rgba(0,255,136,.06);}
+.wnum{color:#00ff88;font-size:10px;}
+.wnum.low{color:#ff3344;}
+.iff-H{color:#ff3344;font-size:9px;} .iff-F{color:#00ff88;font-size:9px;} .iff-U{color:#ffcc00;font-size:9px;}
+.bar{height:3px;border-radius:2px;background:rgba(0,255,136,.1);margin-top:3px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:2px;transition:width .3s;}
+
+/* ── CROSSHAIR ── */
+.xhair{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;width:64px;height:64px;}
+
+/* ── LANG TOGGLE ── */
+
+.lang-btn:active{background:rgba(0,255,136,.1);}
+
+/* ── KONTROLLER ── */
+#ctrl{position:absolute;bottom:0;left:0;right:0;pointer-events:all;}
+
+#joy-zone{position:absolute;bottom:14px;left:12px;width:160px;height:160px;pointer-events:all;}
+.joy-lbl{position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:7px;color:rgba(0,255,136,.35);letter-spacing:1px;white-space:nowrap;}
+.joy-base{width:160px;height:160px;border-radius:50%;background:rgba(0,255,136,.08);border:2px solid rgba(0,255,136,.3);position:relative;}
+#joy-knob{width:58px;height:58px;border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(0,255,136,.7),rgba(0,200,100,.25));border:2px solid rgba(0,255,136,.9);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);box-shadow:0 0 16px rgba(0,255,136,.4);}
+
+#right-ctrl{position:absolute;bottom:18px;right:10px;display:flex;gap:8px;align-items:flex-end;}
+.thr-col{display:flex;flex-direction:column;align-items:center;gap:3px;}
+.thr-lbl{font-size:7px;color:rgba(0,255,136,.35);letter-spacing:1px;}
+.thr-pct{font-size:9px;color:#00ff88;font-family:'Orbitron',monospace;}
+#thr-track{width:36px;height:128px;background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.25);border-radius:18px;position:relative;touch-action:none;}
+#thr-fill{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,#00ff88,#00cc44);border-radius:18px;}
+#thr-knob{position:absolute;left:50%;transform:translateX(-50%);width:32px;height:32px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#00ff88,#00aa55);box-shadow:0 0 10px rgba(0,255,136,.4);bottom:0;}
+
+.btn-col{display:flex;flex-direction:column;gap:5px;}
+.abtn{width:72px;height:42px;border-radius:5px;border:none;font-family:'Share Tech Mono',monospace;font-size:10px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:3px;letter-spacing:.5px;transition:transform .1s;}
+.abtn:active{transform:scale(.93);}
+.btn-fire{background:linear-gradient(135deg,rgba(255,60,70,.95),rgba(200,20,30,.95));color:#fff;border:2px solid #ff3344;box-shadow:0 0 12px rgba(255,51,68,.5);}
+.btn-wpn{background:rgba(0,255,136,.1);color:#00ff88;border:1px solid rgba(0,255,136,.3);}
+.btn-iff{background:rgba(255,204,0,.1);color:#ffcc00;border:1px solid rgba(255,204,0,.3);}
+.btn-rdr{background:rgba(64,128,255,.1);color:#6699ff;border:1px solid rgba(64,128,255,.3);}
+
+/* ── BOOT ── */
+#boot{position:fixed;inset:0;background:#000;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;}
+.b-flags{font-size:28px;display:flex;gap:16px;align-items:center;}
+.b-flag-sep{font-size:20px;color:rgba(0,255,136,.5);}
+.b-logo{font-family:'Orbitron',monospace;font-size:36px;font-weight:900;color:#00ff88;letter-spacing:12px;text-shadow:0 0 30px rgba(0,255,136,.5),0 0 60px rgba(0,255,136,.2);}
+.b-sub{font-family:'Orbitron',monospace;font-size:9px;letter-spacing:4px;color:rgba(0,255,136,.4);}
+.b-ihrac{font-size:9px;letter-spacing:2px;color:rgba(255,204,0,.5);margin-top:2px;}
+.b-bar-bg{width:250px;height:2px;background:rgba(0,255,136,.1);border-radius:1px;}
+.b-bar{height:100%;background:#00ff88;width:0;border-radius:1px;box-shadow:0 0 6px #00ff88;}
+.b-msg{font-size:8px;letter-spacing:2px;color:rgba(0,255,136,.35);height:12px;text-align:center;}
+.b-logos{display:flex;gap:20px;align-items:center;margin-top:4px;}
+.b-logo-box{background:rgba(0,255,136,.05);border:1px solid rgba(0,255,136,.15);border-radius:3px;padding:4px 10px;font-family:'Orbitron',monospace;font-size:8px;letter-spacing:2px;color:rgba(0,255,136,.4);}
+
+/* ── GAME OVER / WIN ── */
+#overlay{position:fixed;inset:0;z-index:150;background:rgba(0,0,0,.8);display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;}
+.ov-title{font-family:'Orbitron',monospace;font-size:28px;font-weight:900;letter-spacing:6px;}
+.ov-score{font-family:'Orbitron',monospace;font-size:20px;color:#ffcc00;letter-spacing:3px;margin:4px 0;}
+.ov-btn{background:rgba(0,255,136,.15);border:1px solid rgba(0,255,136,.4);color:#00ff88;font-family:'Orbitron',monospace;font-size:11px;letter-spacing:2px;padding:10px 20px;cursor:pointer;border-radius:3px;pointer-events:all;transition:all .2s;}
+.ov-btn:active{background:rgba(0,255,136,.35);transform:scale(.96);}
+</style>
+</head>
+<body>
+
+<!-- BOOT -->
+<div id="boot">
+  <div class="b-flags"><span>🇹🇷</span><span class="b-flag-sep">✈</span><span>🇪🇸</span></div>
+  <div style="display:flex;gap:8px;margin-top:4px;">
+    <button onclick="setLang('TR')" id="lb-TR" style="background:rgba(0,255,136,.2);border:1px solid rgba(0,255,136,.5);color:#00ff88;font-family:Share Tech Mono,monospace;font-size:10px;padding:5px 14px;cursor:pointer;border-radius:3px;letter-spacing:1px;">🇹🇷 TR</button>
+    <button onclick="setLang('ES')" id="lb-ES" style="background:rgba(0,0,0,.3);border:1px solid rgba(0,255,136,.2);color:rgba(0,255,136,.5);font-family:Share Tech Mono,monospace;font-size:10px;padding:5px 14px;cursor:pointer;border-radius:3px;letter-spacing:1px;">🇪🇸 ES</button>
+    <button onclick="setLang('EN')" id="lb-EN" style="background:rgba(0,0,0,.3);border:1px solid rgba(0,255,136,.2);color:rgba(0,255,136,.5);font-family:Share Tech Mono,monospace;font-size:10px;padding:5px 14px;cursor:pointer;border-radius:3px;letter-spacing:1px;">🇬🇧 EN</button>
+  </div>
+  <div class="b-logo">ŞAHİN TC</div>
+  <div class="b-sub">TAC-TRAINER EĞİTİM SİMÜLATÖRÜ v4.0</div>
+  <div class="b-ihrac">TÜRKİYE → İSPANYA İHRACAT PROGRAMI</div>
+  <div class="b-bar-bg"><div class="b-bar" id="bbar"></div></div>
+  <div class="b-msg" id="bmsg">BAŞLATILIYOR...</div>
+  <div class="b-logos">
+    <div class="b-logo-box">NEUROSTORY DEFENSE</div>
+    <div class="b-logo-box">© 2026 - 2027</div>
+  </div>
+  <div style="font-size:9px;letter-spacing:2px;color:rgba(0,255,136,.35);margin-top:4px;">📧 neurostorytr@gmail.com</div>
+  <div style="margin-top:8px;background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.2);border-radius:4px;padding:10px 16px;text-align:center;font-family:Share Tech Mono,monospace;">
+    <div style="font-size:9px;letter-spacing:2px;color:rgba(0,255,136,.5);margin-bottom:4px;">☕ DESTEK OL — BANKA TRANSFERI</div>
+    <div style="font-size:11px;color:#00ff88;letter-spacing:1px;">TR43 0001 5001 5800 7311 2034 48</div>
+    <div style="font-size:9px;color:rgba(0,255,136,.6);margin-top:2px;">Serdar Temiz — Açıklama: ŞAHİN TC</div>
+  </div>
+</div>
+
+<!-- OVERLAY -->
+<div id="overlay">
+  <div id="ov-icon" style="font-size:48px;margin-bottom:4px;">💀</div>
+  <div class="ov-title" id="ov-title">GÖREV BAŞARISIZ</div>
+  <div style="font-size:11px;color:rgba(255,255,255,.5);letter-spacing:2px;margin-top:4px;" id="ov-sub">ŞAHİN TC İMHA EDİLDİ</div>
+  <div class="ov-score" id="ov-score">SKOR: 0</div>
+  <div id="ov-stats" style="font-family:Share Tech Mono,monospace;font-size:10px;color:rgba(0,255,136,.6);line-height:2;text-align:left;border:1px solid rgba(0,255,136,.2);padding:10px 16px;border-radius:3px;margin:4px 0;min-width:220px;"></div>
+  <div style="font-size:10px;color:rgba(255,204,0,.6);margin-bottom:4px;" id="ov-rank"></div>
+  <div id="ov-leaderboard" style="font-family:Share Tech Mono,monospace;font-size:9px;color:rgba(0,255,136,.5);line-height:1.8;border-top:1px solid rgba(0,255,136,.15);padding-top:8px;min-width:220px;"></div>
+  <div style="display:flex;gap:10px;margin-top:4px;">
+    <button class="ov-btn" onclick="restartGame()">🔄 YENİDEN</button>
+    <button class="ov-btn" style="border-color:rgba(255,204,0,.4);color:#ffcc00;" onclick="shareScore()">📤 PAYLAŞ</button>
+    <div style="font-family:Share Tech Mono,monospace;font-size:9px;text-align:center;border:1px solid rgba(0,255,136,.2);padding:8px 14px;border-radius:3px;color:rgba(0,255,136,.7);">
+      ☕ DESTEK: TR43 0001 5001 5800 7311 2034 48<br>
+      <span style="color:rgba(0,255,136,.4)">Serdar Temiz — Açıklama: ŞAHİN TC</span>
+    </div>
+  </div>
+</div>
+
+<!-- CANVAS -->
+<canvas id="cv"></canvas>
+
+<!-- BRİEFİNG -->
+<div id="briefing" style="display:none;position:fixed;inset:0;z-index:90;background:rgba(0,0,0,0.92);display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;font-family:Share Tech Mono,monospace;">
+  <div style="font-family:Orbitron,monospace;font-size:18px;font-weight:900;color:#00ff88;letter-spacing:4px;" id="brief-title">◈ GÖREV BRİEFİNG</div>
+  <div style="border:1px solid rgba(0,255,136,.2);border-radius:4px;padding:16px 20px;max-width:320px;font-size:11px;line-height:2;color:rgba(0,255,136,.7);">
+    <div style="color:#ffcc00;letter-spacing:2px;margin-bottom:8px;">GÖREV: KARTAL KALKAN</div>
+    <div>▶ Düşman jetlerini ve SAM sistemlerini imha et</div>
+    <div>▶ <span style="color:#00ff88">YEŞİL</span> uçaklar dost — VURMA, puan kaybedersin</div>
+    <div>▶ <span style="color:#ff3344">KIRMIZI</span> uçaklar düşman — imha et</div>
+    <div>▶ 5 dalga tamamla, bölgeyi temizle</div>
+    <div>▶ Yakıtını ve zırhını koru</div>
+    <div style="margin-top:8px;color:rgba(255,204,0,.6);">⚠ Dost ateşi: -500 puan cezası</div>
+  </div>
+  <div style="font-family:Orbitron,monospace;font-size:10px;letter-spacing:3px;color:rgba(0,255,136,.5);margin-top:4px;">ZORLUK SEÇ</div>
+  <div style="display:flex;gap:10px;">
+    <button onclick="startGame('easy')" style="background:rgba(0,255,136,.15);border:1px solid rgba(0,255,136,.4);color:#00ff88;font-family:Share Tech Mono,monospace;font-size:11px;padding:10px 18px;cursor:pointer;border-radius:3px;letter-spacing:1px;">🟢 KOLAY</button>
+    <button onclick="startGame('normal')" style="background:rgba(255,204,0,.15);border:1px solid rgba(255,204,0,.4);color:#ffcc00;font-family:Share Tech Mono,monospace;font-size:11px;padding:10px 18px;cursor:pointer;border-radius:3px;letter-spacing:1px;">🟡 NORMAL</button>
+    <button onclick="startGame('hard')" style="background:rgba(255,51,68,.15);border:1px solid rgba(255,51,68,.4);color:#ff3344;font-family:Share Tech Mono,monospace;font-size:11px;padding:10px 18px;cursor:pointer;border-radius:3px;letter-spacing:1px;">🔴 ZOR</button>
+  </div>
+  <div style="font-size:9px;color:rgba(0,255,136,.3);letter-spacing:1px;">NEUROSTORY DEFENSE © 2026-2027</div>
+</div>
+
+<!-- MİNİ HARİTA -->
+<div id="minimap-wrap" style="display:none;position:absolute;bottom:210px;right:8px;z-index:20;pointer-events:none;">
+  <div style="font-size:7px;letter-spacing:2px;color:rgba(0,255,136,.4);text-align:center;margin-bottom:2px;">MİNİ HARİTA</div>
+  <canvas id="minimap-c" width="80" height="80" style="border:1px solid rgba(0,255,136,.25);border-radius:3px;background:rgba(0,10,5,.85);"></canvas>
+</div>
+
+<!-- HUD -->
+<div id="hud" style="display:none">
+  <div class="topbar">
+    <div class="t-logo">⬡ ŞAHİN TC TAC-TRAINER</div>
+    <div class="t-stats">
+      <span id="l-alt">İRT</span> <span class="t-val" id="h-alt">200</span>m
+      <span id="l-spd">HIZ</span> <span class="t-val" id="h-spd">0</span>
+      <span>G <span class="t-val" id="h-g">1.0</span></span>
+      <span id="l-fuel">YKT</span> <span class="t-val" id="h-fuel">100</span>%
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button id="snd-btn" onclick="toggleSound()" style="background:transparent;border:none;font-size:14px;cursor:pointer;pointer-events:all;">🔊</button>
+      <div class="t-score">⭐ <span id="h-score">0</span></div>
+    </div>
+  </div>
+
+  <div class="wzone">
+    <div class="wmsg red" id="w-stall">⚠ STALL ⚠</div>
+    <div class="wmsg red" id="w-fuel">⚠ YAKIT KRİTİK ⚠</div>
+    <div class="wmsg red" id="w-hit">⚠ HASAR ALINDI ⚠</div>
+    <div class="wmsg red" id="w-lock">⚠ FÜZE KİLİDİ ⚠</div>
+    <div class="wmsg grn" id="w-kill">✓ HEDEF İMHA ✓</div>
+    <div class="wmsg yel" id="w-miss">CEPHANE BOŞ</div>
+  </div>
+
+  <div class="mzone" id="mlist"></div>
+
+  <button class="lang-btn" onclick="toggleLang()" style="pointer-events:all">🌐 TR / ES</button>
+
+  <div class="rpanel">
+    <div class="rbox">
+      <div class="rlbl" id="l-wpn">AKTİF SİLAH</div>
+      <div class="rval" id="w-act">20mm TOP</div>
+      <div style="font-size:8px;color:#ff3344;display:none;animation:fl .4s infinite" id="w-armed">● SİLAH ETKİN</div>
+    </div>
+    <div class="rbox">
+      <div class="rlbl" id="l-ammo">CEPHANE</div>
+      <div class="wrow"><span>TOP</span><span class="wnum" id="w-gun">500</span></div>
+      <div class="wrow"><span>AIM-120</span><span class="wnum" id="w-aim">4</span></div>
+      <div class="wrow"><span>SOM-J</span><span class="wnum" id="w-som">2</span></div>
+    </div>
+    <div class="rbox">
+      <div class="rlbl">IFF</div>
+      <div id="iff-list" style="font-size:9px;display:flex;flex-direction:column;gap:1px;"></div>
+    </div>
+    <div class="rbox">
+      <div class="rlbl">RADAR</div>
+      <div class="rval" id="h-rmod">TWS</div>
+      <div style="font-size:8px;color:rgba(0,255,136,.4)" id="h-rtgt">3 HEDEF</div>
+    </div>
+    <div class="rbox">
+      <div class="rlbl" id="l-armor">ZIRH</div>
+      <div class="rval" id="h-armor">100%</div>
+      <div class="bar"><div class="bar-fill" id="armor-bar" style="width:100%;background:#00ff88;"></div></div>
+    </div>
+    <div class="rbox">
+      <div class="rlbl">MOTOR</div>
+      <div class="rval" id="h-eng">0%</div>
+      <div class="bar"><div class="bar-fill" id="eng-bar" style="width:0%;background:#ffcc00;"></div></div>
+    </div>
+  </div>
+
+  <!-- CROSSHAIR -->
+  <div class="xhair" id="xhair-wrap">
+    <svg id="xhair-svg" viewBox="0 0 64 64" fill="none">
+      <circle id="xc" cx="32" cy="32" r="14" stroke="rgba(0,255,136,.45)" stroke-width=".7" stroke-dasharray="4 3"/>
+      <line x1="32" y1="4" x2="32" y2="20" stroke="rgba(0,255,136,.7)" stroke-width="1.2" id="xl1"/>
+      <line x1="32" y1="44" x2="32" y2="60" stroke="rgba(0,255,136,.7)" stroke-width="1.2" id="xl2"/>
+      <line x1="4" y1="32" x2="20" y2="32" stroke="rgba(0,255,136,.7)" stroke-width="1.2" id="xl3"/>
+      <line x1="44" y1="32" x2="60" y2="32" stroke="rgba(0,255,136,.7)" stroke-width="1.2" id="xl4"/>
+      <circle cx="32" cy="32" r="2" fill="rgba(0,255,136,.9)" id="xdot"/>
+    </svg>
+    <div id="lock-label" style="display:none;position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-family:Orbitron,monospace;font-size:8px;color:#ff3344;letter-spacing:2px;white-space:nowrap;">● KİLİT</div>
+  </div>
+
+  <!-- KONTROLLER -->
+  <div id="ctrl">
+    <div id="joy-zone">
+      <div class="joy-lbl" id="l-joy">YÖN KONTROLÜ</div>
+      <div class="joy-base" id="joy-base">
+        <div id="joy-knob"></div>
+      </div>
+    </div>
+    <div id="right-ctrl">
+      <div class="thr-col">
+        <div class="thr-lbl" id="l-thr">GAZ</div>
+        <div class="thr-pct" id="thr-pct">0%</div>
+        <div id="thr-track">
+          <div id="thr-fill" style="height:0%"></div>
+          <div id="thr-knob" style="bottom:2px"></div>
+        </div>
+      </div>
+      <div class="btn-col">
+        <button class="abtn btn-fire" id="btn-fire">🎯 ATEŞ</button>
+        <button class="abtn btn-wpn"  id="btn-wpn">🔄 SİLAH</button>
+        <button class="abtn btn-iff"  id="btn-iff">🔍 IFF</button>
+        <button class="abtn btn-rdr"  id="btn-rdr">📡 RADAR</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════
+// DİL SİSTEMİ
+// ══════════════════════════════════════
+const LANGS={
+  EN:{
+    alt:'ALT',spd:'SPD',fuel:'FUEL',wpn:'ACTIVE WEAPON',ammo:'AMMO',armor:'ARMOR',
+    joy:'DIRECTION',thr:'THROTTLE',
+    missions:['Take off — reach altitude','Activate radar system','Identify targets with IFF','Eliminate all enemies','Return to safe zone'],
+    fire:'🎯 FIRE',wpnbtn:'🔄 WEAPON',iffbtn:'🔍 IFF',rdrbtn:'📡 RADAR',
+    kill:'✓ TARGET DESTROYED ✓',hit:'⚠ DAMAGE TAKEN ⚠',stall:'⚠ STALL ⚠',fuelw:'⚠ FUEL CRITICAL ⚠',lock:'⚠ MISSILE LOCK ⚠',miss:'AMMO EMPTY',
+    gameover:'MISSION FAILED',win:'MISSION COMPLETE',score:'SCORE',restart:'RESTART',
+  },
+  TR:{
+    alt:'İRT',spd:'HIZ',fuel:'YKT',wpn:'AKTİF SİLAH',ammo:'CEPHANE',armor:'ZIRH',
+    joy:'YÖN KONTROLÜ',thr:'GAZ',
+    missions:['Kalkış — irtifaya çık','Radar sistemi aktifleştir','IFF ile hedefleri tanımla','Tüm düşmanları imha et','Güvenli bölgeye dön'],
+    fire:'🎯 ATEŞ',wpnbtn:'🔄 SİLAH',iffbtn:'🔍 IFF',rdrbtn:'📡 RADAR',
+    kill:'✓ HEDEF İMHA ✓',hit:'⚠ HASAR ALINDI ⚠',stall:'⚠ STALL ⚠',fuelw:'⚠ YAKIT KRİTİK ⚠',lock:'⚠ FÜZE KİLİDİ ⚠',miss:'CEPHANE BOŞ',
+    gameover:'GÖREV BAŞARISIZ',win:'GÖREV TAMAMLANDI',score:'SKOR',restart:'YENİDEN BAŞLAT',
+  },
+  ES:{
+    alt:'ALT',spd:'VEL',fuel:'COM',wpn:'ARMA ACTIVA',ammo:'MUNICIÓN',armor:'BLINDAJE',
+    joy:'CONTROL DIRECCIÓN',thr:'GAS',
+    missions:['Despegue — alcanzar altitud','Activar sistema de radar','Identificar objetivos IFF','Eliminar todos los enemigos','Regresar a zona segura'],
+    fire:'🎯 FUEGO',wpnbtn:'🔄 ARMA',iffbtn:'🔍 IFF',rdrbtn:'📡 RADAR',
+    kill:'✓ OBJETIVO ELIMINADO ✓',hit:'⚠ DAÑO RECIBIDO ⚠',stall:'⚠ PÉRDIDA ⚠',fuelw:'⚠ COMBUSTIBLE CRÍTICO ⚠',lock:'⚠ MISIL BLOQUEADO ⚠',miss:'SIN MUNICIÓN',
+    gameover:'MISIÓN FALLIDA',win:'MISIÓN COMPLETADA',score:'PUNTUACIÓN',restart:'REINICIAR',
+  }
+};
+let lang='TR';
+function t(k){return LANGS[lang][k]||k;}
+function setLang(l){
+  lang=l;
+  ['TR','ES','EN'].forEach(x=>{
+    const b=document.getElementById('lb-'+x);
+    if(b) b.style.background=x===l?'rgba(0,255,136,.2)':'rgba(0,0,0,.3)';
+    if(b) b.style.color=x===l?'#00ff88':'rgba(0,255,136,.5)';
+    if(b) b.style.borderColor=x===l?'rgba(0,255,136,.5)':'rgba(0,255,136,.2)';
+  });
+  applyLang();
+}
+
+function toggleLang(){
+  lang=lang==='TR'?'ES':lang==='ES'?'EN':'TR';
+  applyLang();
+}
+function applyLang(){
+  const briefTitles={TR:'◈ GÖREV BRİEFİNG',ES:'◈ BRIEFING DE MISIÓN',EN:'◈ MISSION BRIEFING'};
+  const el=document.getElementById('brief-title');
+  if(el) el.textContent=briefTitles[lang]||briefTitles.TR;
+  const L=LANGS[lang];
+  document.getElementById('l-alt').textContent=L.alt;
+  document.getElementById('l-spd').textContent=L.spd;
+  document.getElementById('l-fuel').textContent=L.fuel;
+  document.getElementById('l-wpn').textContent=L.wpn;
+  document.getElementById('l-ammo').textContent=L.ammo;
+  document.getElementById('l-armor').textContent=L.armor;
+  document.getElementById('l-joy').textContent=L.joy;
+  document.getElementById('l-thr').textContent=L.thr;
+  document.getElementById('btn-fire').textContent=L.fire;
+  document.getElementById('btn-wpn').textContent=L.wpnbtn;
+  document.getElementById('btn-iff').textContent=L.iffbtn;
+  document.getElementById('btn-rdr').textContent=L.rdrbtn;
+  document.getElementById('w-kill').textContent=L.kill;
+  document.getElementById('w-hit').textContent=L.hit;
+  document.getElementById('w-stall').textContent=L.stall;
+  document.getElementById('w-fuel').textContent=L.fuelw;
+  document.getElementById('w-lock').textContent=L.lock;
+  document.getElementById('w-miss').textContent=L.miss;
+  renderMissions();
+}
+
+// ══════════════════════════════════════
+// SES SİSTEMİ (Web Audio)
+// ══════════════════════════════════════
+let audioCtx=null;
+let soundEnabled=true;
+function getAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
+function toggleSound(){soundEnabled=!soundEnabled;const btn=document.getElementById('snd-btn');if(btn)btn.textContent=soundEnabled?'🔊':'🔇';}
+
+function playEngine(throttle){
+  if(!soundEnabled)return;
+  try{
+    const a=getAudio();
+    const osc=a.createOscillator();
+    const gain=a.createGain();
+    const dist=a.createWaveShaper();
+    const curve=new Float32Array(256);
+    for(let i=0;i<256;i++){const x=i*2/256-1;curve[i]=x*0.8;}
+    dist.curve=curve;
+    osc.type='sawtooth';
+    osc.frequency.value=80+throttle*1.5;
+    gain.gain.setValueAtTime(0,a.currentTime);
+    gain.gain.linearRampToValueAtTime(throttle/1000,a.currentTime+.05);
+    gain.gain.linearRampToValueAtTime(0,a.currentTime+.12);
+    osc.connect(dist); dist.connect(gain); gain.connect(a.destination);
+    osc.start(); osc.stop(a.currentTime+.12);
+  }catch(e){}
+}
+
+function playGunshot(){
+  if(!soundEnabled)return;
+  try{
+    const a=getAudio();
+    const buf=a.createBuffer(1,a.sampleRate*.08,a.sampleRate);
+    const d=buf.getChannelData(0);
+    for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,2);
+    const src=a.createBufferSource();
+    const gain=a.createGain();
+    gain.gain.value=0.3;
+    src.buffer=buf; src.connect(gain); gain.connect(a.destination);
+    src.start();
+  }catch(e){}
+}
+
+function playExplosion(){
+  if(!soundEnabled)return;
+  try{
+    const a=getAudio();
+    const buf=a.createBuffer(1,a.sampleRate*.4,a.sampleRate);
+    const d=buf.getChannelData(0);
+    for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,1.5)*0.8;
+    const src=a.createBufferSource();
+    const gain=a.createGain();
+    const filt=a.createBiquadFilter();
+    filt.type='lowpass'; filt.frequency.value=400;
+    gain.gain.value=0.6;
+    src.buffer=buf; src.connect(filt); filt.connect(gain); gain.connect(a.destination);
+    src.start();
+  }catch(e){}
+}
+
+function playWin(){
+  if(!soundEnabled)return;
+  try{
+    const a=getAudio();
+    [0,.2,.4,.6].forEach((t,i)=>{
+      const osc=a.createOscillator();
+      const gain=a.createGain();
+      osc.frequency.value=[523,659,784,1046][i];
+      gain.gain.setValueAtTime(0,a.currentTime+t);
+      gain.gain.linearRampToValueAtTime(.25,a.currentTime+t+.05);
+      gain.gain.linearRampToValueAtTime(0,a.currentTime+t+.25);
+      osc.connect(gain); gain.connect(a.destination);
+      osc.start(a.currentTime+t); osc.stop(a.currentTime+t+.3);
+    });
+  }catch(e){}
+}
+
+function playAlert(){
+  if(!soundEnabled)return;
+  try{
+    const a=getAudio();
+    [0,.15,.3].forEach(t=>{
+      const osc=a.createOscillator();
+      const gain=a.createGain();
+      osc.frequency.value=880;
+      gain.gain.setValueAtTime(0,a.currentTime+t);
+      gain.gain.linearRampToValueAtTime(.2,a.currentTime+t+.02);
+      gain.gain.linearRampToValueAtTime(0,a.currentTime+t+.1);
+      osc.connect(gain); gain.connect(a.destination);
+      osc.start(a.currentTime+t); osc.stop(a.currentTime+t+.12);
+    });
+  }catch(e){}
+}
+
+// ══════════════════════════════════════
+// BOOT
+// ══════════════════════════════════════
+const bootMsgs=['AVİYONİK & FBW SİSTEMİ...','AESA RADAR & IFF MOD-3...','SİLAH YÖNETİM SİSTEMİ...','NAVİGASYON GPS/INS/TACAN...','WEB AUDIO SES SİSTEMİ...','TÜM SİSTEMLER HAZIR — İYİ UÇUŞLAR!'];
+let bp=0;
+(function bootStep(){
+  if(bp>=bootMsgs.length){
+    const b=document.getElementById('boot');
+    b.style.transition='opacity 1s'; b.style.opacity='0';
+    setTimeout(()=>{b.style.display='none';document.getElementById('hud').style.display='block';init();},1000);
+    return;
+  }
+  document.getElementById('bmsg').textContent=bootMsgs[bp];
+  document.getElementById('bbar').style.width=((bp+1)/bootMsgs.length*100)+'%';
+  bp++; setTimeout(bootStep,1500);
+})();
+
+// ══════════════════════════════════════
+// CANVAS
+// ══════════════════════════════════════
+const cv=document.getElementById('cv');
+const ctx=cv.getContext('2d');
+let W,H;
+function resize(){W=cv.width=window.innerWidth;H=cv.height=window.innerHeight;}
+window.addEventListener('resize',resize);
+
+// ══════════════════════════════════════
+// OYUN STATE
+// ══════════════════════════════════════
+let score=0;
+let gameStats={kills:0,friendlyFire:0,wavesCleared:0,shotsFired:0,startTime:0};
+
+// LocalStorage skor tablosu
+function getLeaderboard(){
+  try{ return JSON.parse(localStorage.getItem('sahinTC_lb')||'[]'); }catch(e){return[];}
+}
+function saveScore(s,w){
+  const lb=getLeaderboard();
+  const entry={score:s,wave:w,date:new Date().toLocaleDateString('tr-TR'),diff:difficulty};
+  lb.push(entry);
+  lb.sort((a,b)=>b.score-a.score);
+  lb.splice(5);
+  try{localStorage.setItem('sahinTC_lb',JSON.stringify(lb));}catch(e){}
+  return lb;
+}
+function getRank(s){
+  if(s>5000)return{r:'🥇 ACE PİLOT',c:'#ffcc00'};
+  if(s>3000)return{r:'🥈 ÜSTTEĞMEN',c:'#aaaaff'};
+  if(s>1500)return{r:'🥉 TEĞMEN',c:'#cc8833'};
+  if(s>500)return{r:'✈ ADAY PİLOT',c:'#00ff88'};
+  return{r:'🎓 STAJYER',c:'rgba(0,255,136,.5)'};
+}
+function shareScore(){
+  const txt='ŞAHİN TC TAC-TRAINER\nSkor: '+score+'\nDalga: '+wave+'/5\nNEUROSTORY DEFENSE © 2026-2027\nneurostorytr@gmail.com';
+  if(navigator.share){navigator.share({title:'ŞAHİN TC',text:txt}).catch(()=>{});}
+  else{try{navigator.clipboard.writeText(txt);}catch(e){}showBanner('SKOR KOPYALANDI!',1500);}
+}
+let gameState='playing'; // playing|dead|win
+
+const plane={x:0,y:0,alt:200,speed:0,throttle:0,heading:0,pitch:0,roll:0,fuel:100,armor:100,gForce:1};
+
+const wpnList=[
+  {name:'20mm TOP',id:'w-gun',count:500,dmg:1,speed:20,size:2.5,color:'#ffff00'},
+  {name:'AIM-120',id:'w-aim',count:4,dmg:3,speed:14,size:6,color:'#ff8800'},
+  {name:'SOM-J',id:'w-som',count:2,dmg:5,speed:10,size:9,color:'#ff4400'},
+];
+let wIdx=0;
+
+let bullets=[];
+let enemies=[];
+let explosions=[];
+let particles=[];
+let radarSweep=0;
+const radarModes=['TWS','RWS','STT','AIR/GRD'];
+let rmi=0;
+
+// Görevler
+const mDefs=['missions'];
+let mDone=[false,false,false,false,false];
+let mActive=0;
+
+function renderMissions(){
+  const defs=LANGS[lang].missions;
+  document.getElementById('mlist').innerHTML=defs.map((m,i)=>{
+    if(i<mActive)return`<div class="m-done">✓ ${m}</div>`;
+    if(i===mActive)return`<div class="m-act">▶ ${m}</div>`;
+    return`<div style="color:rgba(0,255,136,.2)">○ ${m}</div>`;
+  }).join('');
+}
+
+function advMission(i){if(mActive===i&&!mDone[i]){mDone[i]=true;mActive=i+1;renderMissions();}}
+
+// ── DALGA SİSTEMİ ──
+let wave=1;
+const totalWaves=5;
+let waveQueue=[];
+let waveSpawnTimer=0;
+let waveCleared=false;
+
+let difficulty='normal';
+let friendlies=[]; // dost uçaklar
+
+const WAVE_CONFIGS=[
+  // Dalga 1 — 2 düşman, yavaş
+  [{x:600,y:-200,id:'TGT-01',hp:2,spd:0.4,type:'jet',iff:'H'},{x:-500,y:300,id:'TGT-02',hp:2,spd:0.4,type:'jet',iff:'H'}],
+  // Dalga 2 — 3 düşman
+  [{x:800,y:0,id:'TGT-03',hp:3,spd:0.6,type:'jet',iff:'H'},{x:-700,y:400,id:'TGT-04',hp:2,spd:0.4,type:'sam',iff:'H'},{x:500,y:700,id:'TGT-05',hp:3,spd:0.6,type:'jet',iff:'H'}],
+  // Dalga 3 — 4 düşman
+  [{x:900,y:-300,id:'TGT-06',hp:4,spd:0.8,type:'jet',iff:'H'},{x:-600,y:-200,id:'TGT-07',hp:3,spd:0.7,type:'jet',iff:'H'},{x:300,y:800,id:'TGT-08',hp:4,spd:0.6,type:'sam',iff:'H'},{x:-900,y:600,id:'TGT-09',hp:3,spd:0.7,type:'jet',iff:'H'}],
+  // Dalga 4 — 4 düşman, orta hız
+  [{x:700,y:-500,id:'TGT-10',hp:4,spd:0.9,type:'jet',iff:'H'},{x:-800,y:200,id:'TGT-11',hp:3,spd:0.9,type:'jet',iff:'H'},{x:1000,y:400,id:'TGT-12',hp:3,spd:0.7,type:'sam',iff:'H'},{x:-400,y:-600,id:'TGT-13',hp:4,spd:0.8,type:'jet',iff:'H'}],
+  // Dalga 5 — BOSS dalga
+  [{x:800,y:-400,id:'ACE-01',hp:6,spd:1.1,type:'jet',iff:'H'},{x:-900,y:300,id:'ACE-02',hp:5,spd:1.0,type:'jet',iff:'H'},{x:600,y:800,id:'ACE-03',hp:4,spd:0.8,type:'sam',iff:'H'},{x:-500,y:-500,id:'ACE-04',hp:5,spd:1.0,type:'jet',iff:'H'},{x:1100,y:100,id:'ACE-05',hp:6,spd:1.1,type:'jet',iff:'H'}],
+];
+
+// DOST UÇAK KONFİGÜRASYONLARI
+const FRIENDLY_CONFIGS=[
+  {x:-300,y:-400,id:'FRD-01',hp:3,spd:0.5,type:'jet',iff:'F'},
+  {x:400,y:-600,id:'FRD-02',hp:3,spd:0.6,type:'jet',iff:'F'},
+  {x:-700,y:100,id:'FRD-03',hp:3,spd:0.5,type:'jet',iff:'F'},
+];
+
+function spawnFriendlies(){
+  friendlies=FRIENDLY_CONFIGS.map(c=>({...c,alive:true,moveAngle:Math.random()*Math.PI*2}));
+}
+
+function applyDifficulty(cfgs){
+  return cfgs.map(e=>({
+    ...e,
+    hp: difficulty==='easy'?Math.max(1,e.hp-1):difficulty==='hard'?e.hp+2:e.hp,
+    spd: difficulty==='easy'?e.spd*0.7:difficulty==='hard'?e.spd*1.3:e.spd,
+    fireTimer: difficulty==='easy'?200:difficulty==='hard'?60:120,
+  }));
+}
+
+function showBanner(text,dur){
+  const el=document.getElementById('w-kill');
+  el.textContent=text; el.style.display='block';
+  setTimeout(()=>{el.style.display='none'; el.textContent=LANGS[lang].kill;},dur);
+}
+
+function startWave(n){
+  wave=n; enemies=[]; waveCleared=false; waveSpawnTimer=0;
+  // Düşmanları plane'in ÖNÜNE göre yerleştir
+  const baseConfigs=WAVE_CONFIGS[n-1];
+  const adjusted=baseConfigs.map((cfg,i)=>{
+    const angle=plane.heading + (i/(baseConfigs.length))*(Math.PI*1.2) - Math.PI*0.6;
+    const dist=800+Math.random()*600;
+    return {...cfg,
+      x: plane.x + Math.cos(angle)*dist,
+      y: plane.y + Math.sin(angle)*dist
+    };
+  });
+  waveQueue=applyDifficulty(adjusted);
+  const msg=lang==='TR'?'◈ DALGA '+n+'/5 BAŞLIYOR ◈':'◈ OLA '+n+'/5 INICIANDO ◈';
+  showBanner(msg,2500);
+  document.getElementById('h-rtgt').textContent='? HEDEF';
+  if(n===1) spawnFriendlies();
+}
+
+function updateWave(dt){
+  if(waveQueue.length>0){
+    waveSpawnTimer+=dt;
+    if(waveSpawnTimer>=4){
+      waveSpawnTimer=0;
+      const cfg=waveQueue.shift();
+      // Plane'in önünde rastgele açıda çıkar
+      const spawnAngle=plane.heading+(Math.random()-.5)*1.2;
+      const spawnDist=700+Math.random()*500;
+      cfg.x=plane.x+Math.cos(spawnAngle)*spawnDist;
+      cfg.y=plane.y+Math.sin(spawnAngle)*spawnDist;
+      enemies.push({...cfg,alive:true,fireTimer:60+Math.random()*120});
+      updateIFF();
+      document.getElementById('h-rtgt').textContent=(enemies.filter(e=>e.alive).length+waveQueue.length)+' HEDEF';
+    }
+  }
+  if(!waveCleared && waveQueue.length===0 && enemies.length>0 && enemies.every(e=>!e.alive)){
+    waveCleared=true;
+    if(wave<totalWaves){
+      const msg=lang==='TR'?'✓ DALGA '+wave+' TEMİZLENDİ ✓':'✓ OLA '+wave+' COMPLETADA ✓';
+      showBanner(msg,3200);
+      setTimeout(()=>startWave(wave+1),4000);
+    } else {
+      setTimeout(()=>{advMission(3);endGame(true);},2000);
+    }
+  }
+}
+
+function spawnEnemies(){
+  enemies=[]; waveQueue=[]; wave=0; waveCleared=false; waveSpawnTimer=0; friendlies=[];
+  startWave(1);
+}
+
+// ══════════════════════════════════════
+// JOYSTİCK
+// ══════════════════════════════════════
+const joy={x:0,y:0,tid:null};
+const joyBase=document.getElementById('joy-base');
+const joyKnob=document.getElementById('joy-knob');
+const JR=62;
+
+function joyMove(touch){
+  const r=joyBase.getBoundingClientRect();
+  let dx=touch.clientX-(r.left+r.width/2);
+  let dy=touch.clientY-(r.top+r.height/2);
+  const d=Math.sqrt(dx*dx+dy*dy);
+  if(d>JR){dx=dx/d*JR;dy=dy/d*JR;}
+  // Dead zone — merkeze çok yakınsa sıfır say
+  const deadzone=0.08;
+  const nx=dx/JR; const ny=dy/JR;
+  joy.x=Math.abs(nx)>deadzone?(nx>0?1:-1)*(Math.abs(nx)-deadzone)/(1-deadzone):0;
+  joy.y=Math.abs(ny)>deadzone?(ny>0?1:-1)*(Math.abs(ny)-deadzone)/(1-deadzone):0;
+  joyKnob.style.left=(80+dx)+'px';
+  joyKnob.style.top=(80+dy)+'px';
+  joyKnob.style.transform='translate(-50%,-50%)';
+}
+function joyReset(){joy.x=0;joy.y=0;joyKnob.style.left='50%';joyKnob.style.top='50%';joyKnob.style.transform='translate(-50%,-50%)';}
+
+joyBase.addEventListener('touchstart',e=>{e.preventDefault();joy.tid=e.changedTouches[0].identifier;joyMove(e.changedTouches[0]);},{passive:false});
+document.addEventListener('touchmove',e=>{for(let t of e.changedTouches)if(t.identifier===joy.tid){e.preventDefault();joyMove(t);break;}},{passive:false});
+document.addEventListener('touchend',e=>{for(let t of e.changedTouches)if(t.identifier===joy.tid){joyReset();joy.tid=null;break;}});
+
+// ══════════════════════════════════════
+// GAZ
+// ══════════════════════════════════════
+const thrTrack=document.getElementById('thr-track');
+const thrFill=document.getElementById('thr-fill');
+const thrKnob=document.getElementById('thr-knob');
+let thrTid=null;
+
+function setThr(cy){
+  const r=thrTrack.getBoundingClientRect();
+  let pct=1-(cy-r.top)/r.height;
+  pct=Math.max(0,Math.min(1,pct));
+  plane.throttle=Math.round(pct*100);
+  thrFill.style.height=(pct*100)+'%';
+  const kRange=r.height-34;
+  thrKnob.style.bottom=(pct*kRange+2)+'px';
+  document.getElementById('thr-pct').textContent=plane.throttle+'%';
+}
+thrTrack.addEventListener('touchstart',e=>{e.stopPropagation();e.preventDefault();thrTid=e.changedTouches[0].identifier;setThr(e.changedTouches[0].clientY);},{passive:false});
+document.addEventListener('touchmove',e=>{for(let t of e.changedTouches)if(t.identifier===thrTid){e.preventDefault();setThr(t.clientY);break;}},{passive:false});
+document.addEventListener('touchend',e=>{for(let t of e.changedTouches)if(t.identifier===thrTid){thrTid=null;break;}});
+
+// ══════════════════════════════════════
+// BUTONLAR
+// ══════════════════════════════════════
+document.getElementById('btn-fire').addEventListener('click',fire);
+document.getElementById('btn-wpn').addEventListener('click',()=>{wIdx=(wIdx+1)%wpnList.length;document.getElementById('w-act').textContent=wpnList[wIdx].name;});
+document.getElementById('btn-iff').addEventListener('click',()=>{updateIFF();advMission(2);});
+document.getElementById('btn-rdr').addEventListener('click',()=>{rmi=(rmi+1)%radarModes.length;document.getElementById('h-rmod').textContent=radarModes[rmi];advMission(1);});
+
+let fireCD=0;
+let lockedTarget=null;
+
+function getNearestEnemy(){
+  // Ekran merkezine (crosshair) en yakın düşmanı bul
+  let best=null, bestDist=Infinity;
+  enemies.forEach(e=>{
+    if(!e.alive)return;
+    const sx=W/2+(e.x-plane.x)*.16;
+    const sy=H*.52+(e.y-plane.y)*.12;
+    // Ekran merkezine uzaklık
+    const dx=sx-W/2, dy=sy-H/2;
+    const screenDist=Math.sqrt(dx*dx+dy*dy);
+    if(screenDist<120 && screenDist<bestDist){bestDist=screenDist;best=e;}
+  });
+  return best;
+}
+
+function fire(){
+  if(gameState!=='playing') return;
+  const w=wpnList[wIdx];
+  if(w.count<=0){showWarn('w-miss',true,1000);return;}
+  if(fireCD>0) return;
+  w.count--;
+  document.getElementById(w.id).textContent=w.count;
+  document.getElementById(w.id).className='wnum'+(w.count<3?' low':'');
+  const armed=document.getElementById('w-armed');
+  armed.style.display='block'; setTimeout(()=>armed.style.display='none',400);
+
+  // AIM ASSIST — crosshair yakınında düşman varsa ona doğru ateş et
+  const target=getNearestEnemy();
+  let bx=Math.cos(plane.heading)*w.speed;
+  let by=Math.sin(plane.heading)*w.speed;
+  if(target){
+    lockedTarget=target;
+    const tdx=target.x-plane.x, tdy=target.y-plane.y;
+    const dist=Math.sqrt(tdx*tdx+tdy*tdy);
+    const tAngle=Math.atan2(tdy,tdx);
+    // Mesafeye göre mermi hızı ile öngörü yap
+    const timeToHit=dist/w.speed;
+    const predX=target.x+(Math.random()-.5)*0.5*timeToHit;
+    const predY=target.y+(Math.random()-.5)*0.5*timeToHit;
+    const pdx=predX-plane.x, pdy=predY-plane.y;
+    const plen=Math.sqrt(pdx*pdx+pdy*pdy);
+    bx=pdx/plen*w.speed;
+    by=pdy/plen*w.speed;
+  }
+
+  bullets.push({x:plane.x,y:plane.y,dx:bx,dy:by,life:wIdx===0?70:110,dmg:w.dmg,size:w.size,color:w.color,trail:[]});
+  playGunshot();
+  fireCD=wIdx===0?2:15;
+  score=Math.max(0,score-1);
+  gameStats.shotsFired++;
+}
+
+// ══════════════════════════════════════
+// UYARILAR
+// ══════════════════════════════════════
+const warnT={};
+function showWarn(id,show,dur=900){
+  const el=document.getElementById(id);
+  if(show){el.style.display='block';clearTimeout(warnT[id]);warnT[id]=setTimeout(()=>el.style.display='none',dur);}
+  else el.style.display='none';
+}
+
+// ══════════════════════════════════════
+// IFF
+// ══════════════════════════════════════
+function updateIFF(){
+  const eList=enemies.filter(e=>e.alive).map(e=>`
+    <div style="display:flex;justify-content:space-between;padding:1px 0;">
+      <span style="font-size:9px">${e.id}</span>
+      <span class="iff-H">${lang==='TR'?'DÜŞMAN':'ENEMIGO'}</span>
+    </div>`).join('');
+  const fList=friendlies.filter(f=>f.alive).map(f=>`
+    <div style="display:flex;justify-content:space-between;padding:1px 0;">
+      <span style="font-size:9px">${f.id}</span>
+      <span class="iff-F">${lang==='TR'?'DOST':'ALIADO'}</span>
+    </div>`).join('');
+  document.getElementById('iff-list').innerHTML=(eList+fList)||`<span style="color:rgba(0,255,136,.3);font-size:9px">${lang==='TR'?'HEDEF YOK':'SIN OBJETIVO'}</span>`;
+}
+
+// ══════════════════════════════════════
+// PATLAMA
+// ══════════════════════════════════════
+function spawnExplosion(x,y,big){
+  const n=big?60:25;
+  const colors=['#ff6600','#ffcc00','#ff3300','#ff9900','#ffffff','#ffee44'];
+  for(let i=0;i<n;i++){
+    const a=Math.random()*Math.PI*2;
+    const s=Math.random()*(big?12:5)+2;
+    particles.push({x,y,dx:Math.cos(a)*s,dy:Math.sin(a)*s,life:big?80:40,maxLife:big?80:40,size:Math.random()*(big?7:4)+1,color:colors[Math.floor(Math.random()*colors.length)]});
+  }
+  // Çoklu halka efekti
+  explosions.push({x,y,r:0,maxR:big?120:55,life:big?30:18,maxLife:big?30:18});
+  if(big) explosions.push({x,y,r:0,maxR:60,life:20,maxLife:20});
+  // Ekran sarsıntısı
+  if(big){
+    const hud=document.getElementById('hud');
+    hud.style.transition='transform .05s';
+    hud.style.transform='translate(4px,3px)';
+    setTimeout(()=>{hud.style.transform='translate(-3px,-2px)';},50);
+    setTimeout(()=>{hud.style.transform='translate(0,0)';},100);
+  }
+  playExplosion();
+  if(big){gameStats.kills++;score+=300;}else{score+=80;}
+}
+
+// ══════════════════════════════════════
+// GÜNCELLEME
+// ══════════════════════════════════════
+let last=0;
+let engineSndTimer=0;
+
+function update(dt){
+  if(gameState!=='playing') return;
+  if(fireCD>0) fireCD-=dt*60;
+
+  // Motor sesi
+  engineSndTimer-=dt;
+  if(engineSndTimer<=0&&plane.throttle>10){playEngine(plane.throttle);engineSndTimer=.08;}
+
+  // Yön
+  // Yumuşak dönüş — anlık değil, hedefe doğru yaklaş
+  const targetHeadingRate = joy.x * 2.2;
+  plane.headingRate = (plane.headingRate||0)*0.7 + targetHeadingRate*0.3;
+  plane.heading += plane.headingRate * dt;
+
+  // Pitch yumuşat
+  const targetPitch = joy.y * 0.8;
+  plane.pitch = plane.pitch*0.75 + targetPitch*0.25;
+
+  // Roll joystick'e anlık tepki
+  plane.roll = plane.roll*0.7 + joy.x*0.3;
+
+  // Hız
+  const ms=plane.throttle*.85;
+  plane.speed+=(ms-plane.speed)*dt*1.6;
+
+  // Konum
+  plane.x+=Math.cos(plane.heading)*plane.speed*dt*55;
+  plane.y+=Math.sin(plane.heading)*plane.speed*dt*55;
+
+  // İrtifa
+  plane.alt=Math.max(0,plane.alt-plane.pitch*plane.speed*dt*22);
+  if(plane.alt<=0){
+    spawnExplosion(plane.x,plane.y,true);
+    endGame(false);
+    return;
+  }
+
+  // G
+  plane.gForce=1+Math.abs(plane.pitch)*plane.speed*.004;
+
+  // Yakıt
+  if(plane.throttle>0)plane.fuel=Math.max(0,plane.fuel-plane.throttle*.0004*dt);
+
+  // Görev 1
+  if(plane.alt>150&&!mDone[0])advMission(0);
+
+  // Stall
+  if(plane.speed<2&&plane.alt>80&&plane.throttle<10)showWarn('w-stall',true,500);
+  else document.getElementById('w-stall').style.display='none';
+  if(plane.fuel<=0){endGame(false);return;}
+  if(plane.fuel<15)document.getElementById('w-fuel').style.display='block';
+  else document.getElementById('w-fuel').style.display='none';
+
+  // Mermi
+  for(let i=bullets.length-1;i>=0;i--){
+    const b=bullets[i];
+    b.trail.push({x:b.x,y:b.y});
+    if(b.trail.length>8)b.trail.shift();
+    b.x+=b.dx; b.y+=b.dy; b.life--;
+    if(b.life<=0){bullets.splice(i,1);continue;}
+    let hit=false;
+    for(let j=enemies.length-1;j>=0;j--){
+      const e=enemies[j];
+      if(!e.alive)continue;
+      const dx=b.x-e.x,dy=b.y-e.y;
+      if(dx*dx+dy*dy<1600){
+        e.hp-=b.dmg; hit=true;
+        if(e.hp<=0){
+          e.alive=false;
+          spawnExplosion(e.x,e.y,true);
+          showWarn('w-kill',true,1500);
+          updateIFF();
+          const alive=enemies.filter(x=>x.alive).length;
+          document.getElementById('h-rtgt').textContent=alive+' HEDEF';
+          // wave system handles win condition
+        } else {
+          spawnExplosion(e.x,e.y,false);
+        }
+        break;
+      }
+    }
+    if(hit){bullets.splice(i,1);}
+  }
+
+  // Düşman AI
+  enemies.forEach(e=>{
+    if(!e.alive)return;
+    const dx=plane.x-e.x,dy=plane.y-e.y;
+    const d=Math.sqrt(dx*dx+dy*dy);
+    // Hareket
+    e.x+=dx/d*e.spd;
+    e.y+=dy/d*e.spd;
+    // Yakın çarpışma
+    if(d<25){
+      plane.armor=Math.max(0,plane.armor-0.5);
+      showWarn('w-hit',true,600);
+      if(plane.armor<=0){endGame(false);return;}
+    }
+    // Düşman ateşi
+    e.fireTimer--;
+    if(e.fireTimer<=0&&d<600){
+      e.fireTimer=120+Math.random()*120;
+      // Düşman mermisi
+      const ang=Math.atan2(plane.y-e.y,plane.x-e.x);
+      const miss=(Math.random()-.5)*0.4;
+      bullets.push({x:e.x,y:e.y,dx:Math.cos(ang+miss)*12,dy:Math.sin(ang+miss)*12,life:60,dmg:0,size:3,color:'#ff0000',enemy:true,trail:[]});
+      if(d<300)showWarn('w-lock',true,800);
+    }
+  });
+
+  // Düşman mermileri plane'e isabet
+  for(let i=bullets.length-1;i>=0;i--){
+    const b=bullets[i];
+    if(!b.enemy)continue;
+    const dx=b.x-plane.x,dy=b.y-plane.y;
+    if(dx*dx+dy*dy<400){
+      plane.armor=Math.max(0,plane.armor-8);
+      showWarn('w-hit',true,700);
+      playAlert();
+      spawnExplosion(plane.x,plane.y,false);
+      bullets.splice(i,1);
+      if(plane.armor<=0){endGame(false);return;}
+    }
+  }
+
+  // Partiküller
+  for(let i=particles.length-1;i>=0;i--){
+    const p=particles[i];
+    p.x+=p.dx*.9; p.y+=p.dy*.9; p.dx*=.92; p.dy*=.92; p.life--;
+    if(p.life<=0)particles.splice(i,1);
+  }
+  for(let i=explosions.length-1;i>=0;i--){
+    const e=explosions[i];
+    e.r+=e.maxR/e.maxLife*2; e.life--;
+    if(e.life<=0)explosions.splice(i,1);
+  }
+
+  radarSweep+=dt*2.2;
+  updateWave(dt);
+  // Dost uçak hareketi
+  friendlies.forEach(f=>{
+    if(!f.alive)return;
+    f.moveAngle+=dt*0.3;
+    f.x+=Math.cos(f.moveAngle)*f.spd*2;
+    f.y+=Math.sin(f.moveAngle)*f.spd*2;
+  });
+  // Dost uçağa çarpışma kontrolü (mermi)
+  for(let i=bullets.length-1;i>=0;i--){
+    const b=bullets[i];
+    if(b.enemy)continue;
+    for(let j=friendlies.length-1;j>=0;j--){
+      const f=friendlies[j];
+      if(!f.alive)continue;
+      const dx=b.x-f.x,dy=b.y-f.y;
+      if(dx*dx+dy*dy<1200){
+        f.hp--;
+        score=Math.max(0,score-500);
+        gameStats.friendlyFire++;
+        showBanner(lang==='TR'?'⚠ DOST ATEŞİ! -500 PUAN ⚠':'⚠ FUEGO AMIGO! -500 PTS ⚠',2000);
+        spawnExplosion(f.x,f.y,false);
+        bullets.splice(i,1);
+        if(f.hp<=0){f.alive=false;score=Math.max(0,score-1000);showBanner(lang==='TR'?'✖ DOST İMHA! -1000 PUAN':'✖ ALIADO DESTRUIDO! -1000 PTS',2500);}
+        break;
+      }
+    }
+  }
+}
+
+function endGame(win){
+  gameState=win?'win':'dead';
+  const L=LANGS[lang];
+  const elapsed=Math.round((Date.now()-gameStats.startTime)/1000);
+  const mins=Math.floor(elapsed/60), secs=elapsed%60;
+
+  document.getElementById('ov-icon').textContent=win?'🏆':'💀';
+  document.getElementById('ov-title').textContent=win?L.win:L.gameover;
+  document.getElementById('ov-title').style.color=win?'#00ff88':'#ff3344';
+  let deathMsg='ŞAHİN TC İMHA EDİLDİ';
+  if(!win && plane.fuel<=0) deathMsg=lang==='TR'?'YAKITSIZ KALDI!':lang==='ES'?'¡SIN COMBUSTIBLE!':'FUEL DEPLETED!';
+  else if(!win && plane.alt<=0) deathMsg=lang==='TR'?'YERE ÇARPTI!':lang==='ES'?'¡IMPACTO CON EL SUELO!':'GROUND IMPACT!';
+  document.getElementById('ov-sub').textContent=win?'TÜM DALGALAR TEMİZLENDİ!':deathMsg;
+  document.getElementById('ov-score').textContent='⭐ '+score+' PUAN';
+
+  // İstatistikler
+  document.getElementById('ov-stats').innerHTML=
+    '<div>⏱ SÜRE: '+mins+'dk '+secs+'sn</div>'+
+    '<div>🎯 İMHA: '+gameStats.kills+' düşman</div>'+
+    '<div>💥 ATIŞ: '+gameStats.shotsFired+'</div>'+
+    '<div>🟢 DALGA: '+wave+'/'+totalWaves+'</div>'+
+    (gameStats.friendlyFire>0?'<div style="color:#ff6666">⚠ DOST ATEŞİ: '+gameStats.friendlyFire+'x</div>':'<div style="color:#00ff88">✓ DOST ATEŞİ YOK</div>');
+
+  // Rütbe
+  const rank=getRank(score);
+  document.getElementById('ov-rank').textContent=rank.r;
+  document.getElementById('ov-rank').style.color=rank.c;
+
+  // Skor kaydet ve tabloyu göster
+  const lb=saveScore(score,wave);
+  document.getElementById('ov-leaderboard').innerHTML='<div style="color:rgba(255,204,0,.6);letter-spacing:2px;margin-bottom:4px;">EN İYİ SKORLAR</div>'+
+    lb.map((e,i)=>'<div>'+(i+1)+'. '+e.score+' puan — Dalga '+e.wave+' ('+e.diff+') '+e.date+'</div>').join('');
+
+  document.getElementById('overlay').style.display='flex';
+  if(!win){playExplosion();}else{playWin();}
+}
+
+function restartGame(){
+  gameState='playing';
+  score=0;
+  plane.x=0;plane.y=0;plane.alt=200;plane.speed=0;plane.throttle=0;
+  plane.heading=0;plane.pitch=0;plane.fuel=100;plane.armor=100;
+  bullets=[];particles=[];explosions=[];
+  mDone=[false,false,false,false,false];mActive=0;
+  wIdx=0;
+  wpnList.forEach(w=>{if(w.id==='w-gun')w.count=500;else if(w.id==='w-aim')w.count=4;else w.count=2;document.getElementById(w.id).textContent=w.count;});
+  joyReset(); wave=1; waveQueue=[]; waveCleared=false; waveSpawnTimer=0; friendlies=[];
+  gameStats={kills:0,friendlyFire:0,wavesCleared:0,shotsFired:0,startTime:Date.now()};
+  score=0;
+  document.getElementById('overlay').style.display='none';
+  document.getElementById('hud').style.display='none';
+  document.getElementById('minimap-wrap').style.display='none';
+  document.getElementById('briefing').style.display='flex';
+  const ac=document.getElementById('arrow-cv'); if(ac)ac.remove();
+}
+
+// ══════════════════════════════════════
+// ÇİZİM
+// ══════════════════════════════════════
+let bgStars=[];
+function initStars(){bgStars=[];for(let i=0;i<60;i++)bgStars.push({x:Math.random(),y:Math.random()*.4,s:Math.random()*1.5+.5,b:Math.random()*.6+.2});}
+
+// Arazi şeritleri
+let terrainSegs=[];
+function initTerrain(){
+  terrainSegs=[];
+  for(let i=0;i<12;i++){
+    terrainSegs.push({x:Math.random()*4000-2000,y:Math.random()*4000-2000,type:Math.random()>.5?'mountain':'plain',h:Math.random()*60+20,w:Math.random()*200+80,color:`hsl(${100+Math.random()*30},${40+Math.random()*20}%,${15+Math.random()*12}%)`});
+  }
+}
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+
+  // ── GÖKYÜZÜ ──
+  const skyG=ctx.createLinearGradient(0,0,0,H*.6);
+  skyG.addColorStop(0,'#050d1a');
+  skyG.addColorStop(.5,'#0d2a48');
+  skyG.addColorStop(1,'#1a5a8a');
+  ctx.fillStyle=skyG; ctx.fillRect(0,0,W,H*.6);
+
+  // Yıldızlar
+  bgStars.forEach(s=>{
+    ctx.fillStyle=`rgba(255,255,255,${s.b})`;
+    ctx.fillRect(s.x*W,s.y*H*.4,s.s,s.s);
+  });
+
+  // Güneş
+  const sunX=W*.8, sunY=H*.1;
+  const sunG=ctx.createRadialGradient(sunX,sunY,0,sunX,sunY,80);
+  sunG.addColorStop(0,'rgba(255,240,180,.6)');
+  sunG.addColorStop(.3,'rgba(255,200,80,.2)');
+  sunG.addColorStop(1,'rgba(255,150,0,0)');
+  ctx.fillStyle=sunG; ctx.fillRect(0,0,W,H*.5);
+
+  // ── YER ──
+  const gndG=ctx.createLinearGradient(0,H*.58,0,H);
+  gndG.addColorStop(0,'#1a3a0a');
+  gndG.addColorStop(.3,'#2a5010');
+  gndG.addColorStop(.6,'#1e4008');
+  gndG.addColorStop(1,'#0d1f04');
+  ctx.fillStyle=gndG; ctx.fillRect(0,H*.58,W,H*.42);
+
+  // Arazi detayları (dağlar/tepeler)
+  terrainSegs.forEach(seg=>{
+    const sx=W/2+(seg.x-plane.x)*.12;
+    const sy=H*.6;
+    if(sx<-200||sx>W+200) return;
+    ctx.fillStyle=seg.color;
+    if(seg.type==='mountain'){
+      ctx.beginPath(); ctx.moveTo(sx-seg.w/2,sy); ctx.lineTo(sx,sy-seg.h*1.5); ctx.lineTo(sx+seg.w/2,sy); ctx.closePath(); ctx.fill();
+      ctx.fillStyle='rgba(255,255,255,.15)';
+      ctx.beginPath(); ctx.moveTo(sx-10,sy-seg.h*1.2); ctx.lineTo(sx,sy-seg.h*1.5); ctx.lineTo(sx+10,sy-seg.h*1.2); ctx.closePath(); ctx.fill();
+    } else {
+      ctx.beginPath(); ctx.ellipse(sx,sy,seg.w,seg.h*.5,0,0,Math.PI,true); ctx.fill();
+    }
+  });
+
+  // Izgara (hız hissi)
+  ctx.save();
+  const gxo=((-plane.x*.08)%60+60)%60;
+  const gyo=((-plane.y*.08)%60+60)%60;
+  ctx.strokeStyle='rgba(255,255,255,.025)'; ctx.lineWidth=1;
+  for(let x=gxo-60;x<W+60;x+=60){ctx.beginPath();ctx.moveTo(x,H*.35);ctx.lineTo(x-20,H*.6);ctx.stroke();}
+  for(let y=0;y<4;y++){const yy=H*.4+y*(H*.05);ctx.beginPath();ctx.moveTo(0,yy);ctx.lineTo(W,yy);ctx.stroke();}
+  ctx.restore();
+
+  // Yol/nehir
+  ctx.save();
+  const ry=H*.65;
+  ctx.strokeStyle='rgba(100,180,255,.12)'; ctx.lineWidth=8;
+  ctx.beginPath(); ctx.moveTo(0,ry); ctx.bezierCurveTo(W*.3,ry-30,W*.7,ry+30,W,ry); ctx.stroke();
+  ctx.restore();
+
+  // ── DÜŞMANLAR ──
+  enemies.forEach(e=>{
+    if(!e.alive)return;
+    const sx=W/2+(e.x-plane.x)*.16;
+    const sy=H*.52+(e.y-plane.y)*.12;
+    if(sx<-60||sx>W+60||sy<40||sy>H-.15*H) return;
+    ctx.save(); ctx.translate(sx,sy);
+    const ang=Math.atan2(plane.y-e.y,plane.x-e.x);
+    ctx.rotate(ang);
+    if(e.type==='jet'){
+      ctx.fillStyle='#8b0000';
+      ctx.beginPath(); ctx.ellipse(0,0,20,6,0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#6b0000';
+      ctx.beginPath(); ctx.moveTo(-8,-4); ctx.lineTo(6,-14); ctx.lineTo(8,-12); ctx.lineTo(-5,-3); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(-8,4); ctx.lineTo(6,14); ctx.lineTo(8,12); ctx.lineTo(-5,3); ctx.closePath(); ctx.fill();
+      ctx.fillStyle='#aa0000'; ctx.beginPath(); ctx.moveTo(20,0); ctx.lineTo(28,-3); ctx.lineTo(28,3); ctx.closePath(); ctx.fill();
+    } else {
+      ctx.fillStyle='#5a0000';
+      ctx.fillRect(-12,-5,24,10);
+      ctx.fillStyle='#8b0000';
+      ctx.fillRect(-4,-15,8,15);
+    }
+    // HP bar
+    ctx.fillStyle='rgba(0,0,0,.5)'; ctx.fillRect(-15,-22,30,4);
+    ctx.fillStyle=e.hp>2?'#00ff88':e.hp>1?'#ffcc00':'#ff3344';
+    ctx.fillRect(-15,-22,30*(e.hp/(e.type==='sam'?2:3)),4);
+    // ID etiket
+    ctx.fillStyle='#ff5555'; ctx.font='7px monospace'; ctx.textAlign='center';
+    ctx.fillText(e.id,0,-26);
+    // Hedef halkası
+    ctx.strokeStyle='rgba(255,51,68,.4)'; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.arc(0,0,28,0,Math.PI*2); ctx.stroke(); ctx.setLineDash([]);
+    ctx.restore();
+  });
+
+  // ── DOST UÇAKLAR ──
+  friendlies.forEach(f=>{
+    if(!f.alive)return;
+    const sx=W/2+(f.x-plane.x)*.16;
+    const sy=H*.52+(f.y-plane.y)*.12;
+    if(sx<-60||sx>W+60||sy<40||sy>H*.9)return;
+    ctx.save(); ctx.translate(sx,sy);
+    const ang=Math.atan2(plane.y-f.y,plane.x-f.x);
+    ctx.rotate(ang+Math.PI);
+    // Gövde — gri metalik (İspanya uçağı)
+    const fg2=ctx.createLinearGradient(-18,0,18,0);
+    fg2.addColorStop(0,'#555'); fg2.addColorStop(.5,'#bbb'); fg2.addColorStop(1,'#666');
+    ctx.fillStyle=fg2;
+    ctx.beginPath(); ctx.ellipse(0,0,18,5,0,0,Math.PI*2); ctx.fill();
+    // Kanatlar
+    ctx.fillStyle='#999';
+    ctx.beginPath(); ctx.moveTo(-6,-3); ctx.lineTo(5,-12); ctx.lineTo(7,-10); ctx.lineTo(-4,-2); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(-6,3); ctx.lineTo(5,12); ctx.lineTo(7,10); ctx.lineTo(-4,2); ctx.closePath(); ctx.fill();
+    // Burun
+    ctx.fillStyle='#888'; ctx.beginPath(); ctx.moveTo(18,0); ctx.lineTo(24,-3); ctx.lineTo(24,3); ctx.closePath(); ctx.fill();
+    // Kuyrukta İspanya bayrağı rozeti
+    ctx.save();
+    ctx.translate(-14,-6);
+    // Kırmızı üst şerit
+    ctx.fillStyle='rgba(196,10,35,.9)'; ctx.fillRect(0,-5,10,3.3);
+    // Sarı orta şerit
+    ctx.fillStyle='rgba(255,196,0,.95)'; ctx.fillRect(0,-1.7,10,3.4);
+    // Kırmızı alt şerit
+    ctx.fillStyle='rgba(196,10,35,.9)'; ctx.fillRect(0,1.7,10,3.3);
+    // İspanya arması — basit kalkan
+    ctx.fillStyle='rgba(150,8,28,.9)';
+    ctx.beginPath(); ctx.arc(4,0,2,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='rgba(255,220,0,.9)';
+    ctx.beginPath(); ctx.arc(4,0,1.2,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+    // IFF yeşil ışık
+    ctx.fillStyle='rgba(0,255,136,.8)';
+    ctx.beginPath(); ctx.arc(0,-8,3,0,Math.PI*2); ctx.fill();
+    // Etiket
+    ctx.fillStyle='#00ff88'; ctx.font='7px monospace'; ctx.textAlign='center';
+    ctx.fillText(f.id,0,-20);
+    // DOST halkası
+    ctx.strokeStyle='rgba(0,255,136,.5)'; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.arc(0,0,24,0,Math.PI*2); ctx.stroke(); ctx.setLineDash([]);
+    // HP bar
+    ctx.fillStyle='rgba(0,0,0,.5)'; ctx.fillRect(-12,-16,24,3);
+    ctx.fillStyle='#00ff88'; ctx.fillRect(-12,-16,24*(f.hp/3),3);
+    ctx.restore();
+  });
+
+  // ── MERMİLER ──
+  bullets.forEach(b=>{
+    const sx=W/2+(b.x-plane.x)*.16;
+    const sy=H*.52+(b.y-plane.y)*.12;
+    // İz
+    if(b.trail.length>1){
+      ctx.save(); ctx.beginPath();
+      b.trail.forEach((pt,i)=>{
+        const tx=W/2+(pt.x-plane.x)*.16;
+        const ty=H*.52+(pt.y-plane.y)*.12;
+        i===0?ctx.moveTo(tx,ty):ctx.lineTo(tx,ty);
+      });
+      ctx.strokeStyle=b.enemy?'rgba(255,0,0,.3)':`rgba(255,220,0,.3)`;
+      ctx.lineWidth=b.size*.6; ctx.stroke(); ctx.restore();
+    }
+    ctx.fillStyle=b.color;
+    ctx.beginPath(); ctx.arc(sx,sy,b.size,0,Math.PI*2); ctx.fill();
+    if(b.size>4){ctx.fillStyle=b.color.replace(')',',0.3)').replace('rgb','rgba');ctx.beginPath();ctx.arc(sx,sy,b.size*2,0,Math.PI*2);ctx.fill();}
+  });
+
+  // ── PARTIKÜLLER ──
+  particles.forEach(p=>{
+    const sx=W/2+(p.x-plane.x)*.16;
+    const sy=H*.52+(p.y-plane.y)*.12;
+    const alpha=p.life/p.maxLife;
+    ctx.globalAlpha=alpha;
+    ctx.fillStyle=p.color;
+    ctx.beginPath(); ctx.arc(sx,sy,p.size*alpha,0,Math.PI*2); ctx.fill();
+  });
+  ctx.globalAlpha=1;
+
+  // ── PATLAMA HALKALARI ──
+  explosions.forEach(e=>{
+    const sx=W/2+(e.x-plane.x)*.16;
+    const sy=H*.52+(e.y-plane.y)*.12;
+    const alpha=(e.life/e.maxLife)*.6;
+    ctx.save();
+    ctx.strokeStyle=`rgba(255,150,0,${alpha})`;
+    ctx.lineWidth=3*alpha;
+    ctx.beginPath(); ctx.arc(sx,sy,e.r,0,Math.PI*2); ctx.stroke();
+    ctx.fillStyle=`rgba(255,100,0,${alpha*.3})`;
+    ctx.beginPath(); ctx.arc(sx,sy,e.r*.6,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+  });
+
+  // ── ŞAHİN TC UÇAĞI ──
+  drawPlane();
+
+  // ── EGZOZ ALEVI ──
+  if(plane.throttle>15){
+    const fl=plane.throttle/100;
+    const ex=W/2-50, ey=H/2-20;
+    const fg=ctx.createRadialGradient(ex,ey,0,ex,ey,22*fl);
+    fg.addColorStop(0,'rgba(255,220,80,.95)');
+    fg.addColorStop(.3,'rgba(255,120,0,.7)');
+    fg.addColorStop(.7,'rgba(255,50,0,.3)');
+    fg.addColorStop(1,'rgba(255,0,0,0)');
+    ctx.fillStyle=fg;
+    ctx.beginPath(); ctx.ellipse(ex,ey,22*fl,6*fl,0,0,Math.PI*2); ctx.fill();
+  }
+
+  // ── RADAR ──
+  drawRadar();
+
+  // ── YAPAY UFUK ──
+  drawAH();
+
+  // ── PUSULA ──
+  drawCompass();
+
+  // ── CROSSHAIR RENK ──
+  const nearEnemy=getNearestEnemy();
+  const xcolor=nearEnemy?'rgba(255,51,68,.9)':'rgba(0,255,136,.7)';
+  const xcircle=nearEnemy?'rgba(255,51,68,.6)':'rgba(0,255,136,.45)';
+  ['xl1','xl2','xl3','xl4'].forEach(id=>{const el=document.getElementById(id);if(el)el.setAttribute('stroke',xcolor);});
+  const xc=document.getElementById('xc'); if(xc)xc.setAttribute('stroke',xcircle);
+  const xdot=document.getElementById('xdot'); if(xdot)xdot.setAttribute('fill',xcolor);
+  const lk=document.getElementById('lock-label'); if(lk)lk.style.display=nearEnemy?'block':'none';
+
+  // ── SKOR ──
+  document.getElementById('h-score').textContent=score;
+
+  // ── MİNİ HARİTA ──
+  drawMinimap();
+}
+
+function drawMinimap(){
+  const mc=document.getElementById('minimap-c');
+  if(!mc)return;
+  const mx=mc.getContext('2d');
+  const MW=100,MH=100,MCX=50,MCY=50,MSCALE=0.04;
+  mx.fillStyle='rgba(0,10,5,.9)'; mx.fillRect(0,0,MW,MH);
+  // Izgara
+  mx.strokeStyle='rgba(0,255,136,.06)'; mx.lineWidth=1;
+  for(let i=0;i<MW;i+=20){mx.beginPath();mx.moveTo(i,0);mx.lineTo(i,MH);mx.stroke();}
+  for(let i=0;i<MH;i+=20){mx.beginPath();mx.moveTo(0,i);mx.lineTo(MW,i);mx.stroke();}
+  // Düşmanlar
+  enemies.forEach(e=>{
+    if(!e.alive)return;
+    const ex=MCX+(e.x-plane.x)*MSCALE;
+    const ey=MCY+(e.y-plane.y)*MSCALE;
+    if(ex<2||ex>MW-2||ey<2||ey>MH-2)return;
+    mx.fillStyle='#ff3344';
+    mx.fillRect(ex-2,ey-2,5,5);
+  });
+  // Dost uçaklar
+  friendlies.forEach(f=>{
+    if(!f.alive)return;
+    const fx=MCX+(f.x-plane.x)*MSCALE;
+    const fy=MCY+(f.y-plane.y)*MSCALE;
+    if(fx<2||fx>MW-2||fy<2||fy>MH-2)return;
+    mx.fillStyle='#00ff88';
+    mx.fillRect(fx-2,fy-2,4,4);
+  });
+  // Kendim — merkez
+  mx.fillStyle='#ffffff';
+  mx.font='10px sans-serif'; mx.textAlign='center'; mx.textBaseline='middle';
+  mx.fillText('✈',MCX,MCY);
+  // Çerçeve
+  mx.strokeStyle='rgba(0,255,136,.3)'; mx.lineWidth=1;
+  mx.strokeRect(.5,.5,MW-1,MH-1);
+}
+
+function drawPlane(){
+  const cx=W/2, cy=H/2-18;
+  ctx.save(); ctx.translate(cx,cy); ctx.rotate(plane.roll*.22);
+  // Gövde gölgesi
+  ctx.fillStyle='rgba(0,0,0,.3)';
+  ctx.beginPath(); ctx.ellipse(2,3,32,8,0,0,Math.PI*2); ctx.fill();
+  // Ana gövde
+  const bodyG=ctx.createLinearGradient(-30,0,30,0);
+  bodyG.addColorStop(0,'#555'); bodyG.addColorStop(.5,'#ccc'); bodyG.addColorStop(1,'#777');
+  ctx.fillStyle=bodyG;
+  ctx.beginPath(); ctx.ellipse(0,0,32,7,0,0,Math.PI*2); ctx.fill();
+  // Burun
+  ctx.fillStyle='#888';
+  ctx.beginPath(); ctx.moveTo(32,0); ctx.lineTo(48,-4); ctx.lineTo(48,4); ctx.closePath(); ctx.fill();
+  // Kabin
+  ctx.fillStyle='rgba(100,200,255,.6)';
+  ctx.beginPath(); ctx.ellipse(14,-4,8,4,-.3,0,Math.PI*2); ctx.fill();
+  // Sol kanat
+  const wg=ctx.createLinearGradient(0,-6,0,-28);
+  wg.addColorStop(0,'#aaa'); wg.addColorStop(1,'#888');
+  ctx.fillStyle=wg;
+  ctx.beginPath(); ctx.moveTo(2,-6); ctx.lineTo(20,-26); ctx.lineTo(24,-24); ctx.lineTo(10,-4); ctx.closePath(); ctx.fill();
+  // Sağ kanat
+  ctx.beginPath(); ctx.moveTo(2,6); ctx.lineTo(20,26); ctx.lineTo(24,24); ctx.lineTo(10,4); ctx.closePath(); ctx.fill();
+  // Sol yatay kuyruk
+  ctx.fillStyle='#888';
+  ctx.beginPath(); ctx.moveTo(-20,-3); ctx.lineTo(-9,-13); ctx.lineTo(-7,-11); ctx.lineTo(-18,-2); ctx.closePath(); ctx.fill();
+  // Sağ yatay kuyruk
+  ctx.beginPath(); ctx.moveTo(-20,3); ctx.lineTo(-9,13); ctx.lineTo(-7,11); ctx.lineTo(-18,2); ctx.closePath(); ctx.fill();
+  // Dikey kuyruk
+  ctx.fillStyle='#777';
+  ctx.beginPath(); ctx.moveTo(-26,0); ctx.lineTo(-14,-16); ctx.lineTo(-10,-14); ctx.lineTo(-22,0); ctx.closePath(); ctx.fill();
+  // Türk bayrağı — kuyrukta küçük rozet
+  ctx.save();
+  ctx.translate(-22, -8); // dikey kuyruk üstü
+  // Küçük bayrak dikdörtgeni
+  ctx.fillStyle='rgba(227,10,23,.85)';
+  ctx.fillRect(0,-5,10,10);
+  // Beyaz ay
+  ctx.fillStyle='rgba(255,255,255,.9)';
+  ctx.beginPath(); ctx.arc(4,0,3,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='rgba(227,10,23,.85)';
+  ctx.beginPath(); ctx.arc(5.2,0,2.1,0,Math.PI*2); ctx.fill();
+  // Yıldız
+  ctx.fillStyle='rgba(255,255,255,.9)';
+  ctx.save(); ctx.translate(8,0); ctx.rotate(Math.PI/10);
+  for(let i=0;i<5;i++){
+    ctx.rotate(Math.PI*2/5);
+    ctx.beginPath(); ctx.moveTo(0,-1.8); ctx.lineTo(.5,-.5); ctx.lineTo(1.8,-.5);
+    ctx.lineTo(.8,.5); ctx.lineTo(1.1,1.8); ctx.lineTo(0,1);
+    ctx.lineTo(-1.1,1.8); ctx.lineTo(-.8,.5); ctx.lineTo(-1.8,-.5);
+    ctx.lineTo(-.5,-.5); ctx.closePath(); ctx.fill();
+  }
+  ctx.restore();
+  ctx.restore();
+  // Silah noktaları
+  [-1,1].forEach(s=>{
+    ctx.fillStyle='#555';
+    ctx.beginPath(); ctx.ellipse(8,s*14,6,2,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#333';
+    ctx.fillRect(5,s*14-1,8,2);
+  });
+  ctx.restore();
+}
+
+function drawRadar(){
+  const rx=66,ry=H-80,r=58;
+  ctx.save();
+  // Dış parlama
+  ctx.fillStyle='rgba(0,255,136,.04)';
+  ctx.beginPath(); ctx.arc(rx,ry,r+8,0,Math.PI*2); ctx.fill();
+  // Arka plan
+  ctx.fillStyle='rgba(1,8,4,.9)';
+  ctx.beginPath(); ctx.arc(rx,ry,r,0,Math.PI*2); ctx.fill();
+  // Tarama çizgileri
+  ctx.strokeStyle='rgba(0,255,136,.06)'; ctx.lineWidth=1;
+  for(let i=0;i<8;i++){
+    const a=i*Math.PI/4;
+    ctx.beginPath(); ctx.moveTo(rx,ry); ctx.lineTo(rx+Math.cos(a)*r,ry+Math.sin(a)*r); ctx.stroke();
+  }
+  // Halkalar
+  [.3,.6,1].forEach(s=>{
+    ctx.beginPath(); ctx.arc(rx,ry,r*s,0,Math.PI*2);
+    ctx.strokeStyle=`rgba(0,255,136,${.08+s*.04})`; ctx.lineWidth=.8; ctx.stroke();
+  });
+  // Sweep
+  ctx.save(); ctx.translate(rx,ry); ctx.rotate(radarSweep);
+  const sg=ctx.createLinearGradient(0,0,r,0);
+  sg.addColorStop(0,'rgba(0,255,136,.35)'); sg.addColorStop(.7,'rgba(0,255,136,.05)'); sg.addColorStop(1,'rgba(0,255,136,0)');
+  ctx.fillStyle=sg; ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,r,-.6,0); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle='rgba(0,255,136,.6)'; ctx.lineWidth=1.2;
+  ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(r,0); ctx.stroke();
+  ctx.restore();
+  // Hedefler
+  enemies.forEach(e=>{
+    if(!e.alive)return;
+    const dx=e.x-plane.x, dy=e.y-plane.y;
+    const d=Math.sqrt(dx*dx+dy*dy); if(d>2200)return;
+    const a=Math.atan2(dy,dx)-plane.heading;
+    const ex=rx+Math.cos(a)*(d/2200)*r;
+    const ey2=ry+Math.sin(a)*(d/2200)*r;
+    ctx.fillStyle='#ff3344';
+    ctx.beginPath(); ctx.arc(ex,ey2,3.5,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='rgba(255,51,68,.2)';
+    ctx.beginPath(); ctx.arc(ex,ey2,7,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#ff5566'; ctx.font='6px monospace';
+    ctx.fillText(e.id.slice(-2),ex+5,ey2-2);
+  });
+  // Dost uçaklar radarda
+  friendlies.forEach(f=>{
+    if(!f.alive)return;
+    const dx=f.x-plane.x,dy=f.y-plane.y;
+    const d=Math.sqrt(dx*dx+dy*dy); if(d>2200)return;
+    const a=Math.atan2(dy,dx)-plane.heading;
+    const fx=rx+Math.cos(a)*(d/2200)*r;
+    const fy=ry+Math.sin(a)*(d/2200)*r;
+    ctx.fillStyle='#00ff88';
+    ctx.beginPath(); ctx.arc(fx,fy,3,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='rgba(0,255,136,.5)'; ctx.font='6px monospace';
+    ctx.fillText('F',fx+4,fy-2);
+  });
+
+  // Kendi
+  ctx.fillStyle='#00ff88'; ctx.font='bold 12px sans-serif';
+  ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('⊕',rx,ry);
+  ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+  // Çerçeve
+  ctx.strokeStyle='rgba(0,255,136,.25)'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.arc(rx,ry,r,0,Math.PI*2); ctx.stroke();
+  // Etiket
+  ctx.fillStyle='rgba(0,255,136,.35)'; ctx.font='7px Share Tech Mono';
+  ctx.textAlign='center'; ctx.fillText('RADAR // '+radarModes[rmi],rx,ry+r+12);
+  ctx.restore();
+}
+
+function drawAH(){
+  const ax=160,ay=H-80,aw=74,ah=74;
+  ctx.save();
+  ctx.beginPath(); ctx.arc(ax,ay,aw/2+2,0,Math.PI*2); ctx.fillStyle='rgba(0,0,0,.8)'; ctx.fill();
+  ctx.beginPath(); ctx.rect(ax-aw/2,ay-ah/2,aw,ah); ctx.clip();
+  ctx.save(); ctx.translate(ax,ay); ctx.rotate(-plane.roll*.28);
+  const po=plane.pitch*28;
+  ctx.fillStyle='#0d2a4a'; ctx.fillRect(-aw,po-ah,aw*2,ah);
+  ctx.fillStyle='#1e3d0a'; ctx.fillRect(-aw,po,aw*2,ah);
+  // Pitch lines
+  for(let i=-2;i<=2;i++){
+    if(i===0)continue;
+    const yy=po+i*12;
+    ctx.strokeStyle='rgba(255,255,255,.3)'; ctx.lineWidth=.8;
+    ctx.beginPath(); ctx.moveTo(-15,yy); ctx.lineTo(15,yy); ctx.stroke();
+    ctx.fillStyle='rgba(255,255,255,.4)'; ctx.font='6px monospace'; ctx.textAlign='right';
+    ctx.fillText(Math.abs(i*10),-16,yy+2);
+  }
+  ctx.strokeStyle='rgba(255,255,255,.6)'; ctx.lineWidth=1.2;
+  ctx.beginPath(); ctx.moveTo(-aw,po); ctx.lineTo(aw,po); ctx.stroke();
+  ctx.restore();
+  // Merkez imleci
+  ctx.strokeStyle='#ffcc00'; ctx.lineWidth=1.8;
+  ctx.beginPath(); ctx.moveTo(ax-24,ay); ctx.lineTo(ax-10,ay); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(ax+10,ay); ctx.lineTo(ax+24,ay); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(ax,ay-5); ctx.lineTo(ax,ay+5); ctx.stroke();
+  // Çerçeve
+  ctx.strokeStyle='rgba(0,255,136,.3)'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.arc(ax,ay,aw/2+2,0,Math.PI*2); ctx.stroke();
+  ctx.fillStyle='rgba(0,255,136,.3)'; ctx.font='7px Share Tech Mono';
+  ctx.textAlign='center'; ctx.fillText('YAPAY UFUK',ax,ay+ah/2+14);
+  ctx.restore();
+}
+
+function drawCompass(){
+  const cx=W/2, cy=H-30;
+  ctx.save();
+  ctx.fillStyle='rgba(0,0,0,.6)'; ctx.fillRect(cx-60,cy-10,120,20); ctx.strokeStyle='rgba(0,255,136,.2)'; ctx.lineWidth=1; ctx.strokeRect(cx-60,cy-10,120,20);
+  const headingDeg=((plane.heading*180/Math.PI)%360+360)%360;
+  const dirs=['N','NE','E','SE','S','SW','W','NW','N'];
+  for(let i=-60;i<=60;i+=5){
+    const deg=(headingDeg+i+360)%360;
+    const x=cx+i*1.5;
+    ctx.strokeStyle=`rgba(0,255,136,${i===0?'.7':'.2'})`; ctx.lineWidth=i===0?2:1;
+    ctx.beginPath(); ctx.moveTo(x,cy-10); ctx.lineTo(x,cy-(i%10===0?7:4)); ctx.stroke();
+    if(i%20===0){
+      const di=Math.round(deg/45)%8;
+      ctx.fillStyle=dirs[di]==='N'?'#ff3344':'rgba(0,255,136,.6)';
+      ctx.font='8px Orbitron'; ctx.textAlign='center'; ctx.fillText(dirs[di],x,cy+6);
+    }
+  }
+  ctx.fillStyle='#00ff88'; ctx.font='bold 8px Orbitron'; ctx.textAlign='center';
+  ctx.fillText(Math.round(headingDeg)+'°',cx,cy-1);
+  ctx.restore();
+}
+
+function updateHUD(){
+  document.getElementById('h-alt').textContent=Math.round(plane.alt).toLocaleString('tr');
+  document.getElementById('h-spd').textContent=Math.round(plane.speed*35)+'km/h';
+  document.getElementById('h-g').textContent=plane.gForce.toFixed(1);
+  document.getElementById('h-fuel').textContent=Math.round(plane.fuel);
+  document.getElementById('h-armor').textContent=Math.round(plane.armor)+'%';
+  document.getElementById('h-eng').textContent=Math.round(plane.throttle)+'%';
+  document.getElementById('armor-bar').style.width=plane.armor+'%';
+  document.getElementById('armor-bar').style.background=plane.armor>60?'#00ff88':plane.armor>30?'#ffcc00':'#ff3344';
+  document.getElementById('eng-bar').style.width=plane.throttle+'%';
+
+  // Ekran kenarında düşman yön okları
+  drawEnemyArrows();
+}
+
+function drawEnemyArrows(){
+  // Canvas üzerinde değil, HUD canvas'ı kullan
+  let arrowCanvas=document.getElementById('arrow-cv');
+  if(!arrowCanvas){
+    arrowCanvas=document.createElement('canvas');
+    arrowCanvas.id='arrow-cv';
+    arrowCanvas.style.cssText='position:fixed;top:0;left:0;pointer-events:none;z-index:15;';
+    document.body.appendChild(arrowCanvas);
+  }
+  arrowCanvas.width=W; arrowCanvas.height=H;
+  const ac=arrowCanvas.getContext('2d');
+  ac.clearRect(0,0,W,H);
+
+  const margin=50;
+  enemies.forEach(e=>{
+    if(!e.alive)return;
+    const sx=W/2+(e.x-plane.x)*.16;
+    const sy=H*.52+(e.y-plane.y)*.12;
+    // Ekran içindeyse ok çizme
+    if(sx>margin&&sx<W-margin&&sy>margin&&sy<H-margin)return;
+    // Yön hesapla
+    const angle=Math.atan2(e.y-plane.y,e.x-plane.x);
+    // Ok pozisyonu — ekran kenarında
+    const cx=W/2, cy=H/2;
+    const edgeX=Math.max(margin,Math.min(W-margin,cx+Math.cos(angle)*220));
+    const edgeY=Math.max(margin+44,Math.min(H-margin-140,cy+Math.sin(angle)*280));
+    const dist=Math.round(Math.sqrt((e.x-plane.x)**2+(e.y-plane.y)**2)/10);
+    // Ok çiz
+    ac.save(); ac.translate(edgeX,edgeY); ac.rotate(angle);
+    ac.fillStyle='rgba(255,51,68,.85)';
+    ac.beginPath(); ac.moveTo(14,0); ac.lineTo(-6,-7); ac.lineTo(-3,0); ac.lineTo(-6,7); ac.closePath(); ac.fill();
+    ac.strokeStyle='rgba(255,51,68,.4)'; ac.lineWidth=1;
+    ac.strokeRect(-6,-7,20,14);
+    ac.restore();
+    // Mesafe + ID
+    ac.fillStyle='rgba(255,51,68,.8)'; ac.font='8px Share Tech Mono';
+    ac.textAlign='center'; ac.fillText(e.id+'  '+dist+'km',edgeX,edgeY+16);
+  });
+}
+
+function loop(ts){
+  requestAnimationFrame(loop);
+  const dt=Math.min((ts-last)/1000,.05); last=ts;
+  if(dt<.001)return;
+  update(dt);
+  draw();
+  updateHUD();
+}
+
+function startGame(diff){
+  difficulty=diff;
+  gameStats={kills:0,friendlyFire:0,wavesCleared:0,shotsFired:0,startTime:Date.now()};
+  document.getElementById('briefing').style.display='none';
+  document.getElementById('hud').style.display='block';
+  document.getElementById('minimap-wrap').style.display='block';
+  spawnEnemies();
+  renderMissions();
+}
+
+function init(){
+  resize();
+  initStars();
+  initTerrain();
+  applyLang();
+  // Briefing ekranını göster, HUD gizle
+  document.getElementById('hud').style.display='none';
+  document.getElementById('briefing').style.display='flex';
+  requestAnimationFrame(loop);
+}
+</script>
+</body>
+</html>
